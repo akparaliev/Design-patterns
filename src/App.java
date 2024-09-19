@@ -1,11 +1,18 @@
+import java.text.MessageFormat;
+
+import CacheImpl.CacheDecorator;
+import CacheImpl.CacheTimeMeasureDecorator;
 import CacheImpl.CacheTypeEnum;
+import CacheImpl.LegacyCacheAdapter;
 import Interfaces.ICache;
 
 public class App {
     public static void main(String[] args) throws Exception {
         System.out.println("Starting...");
         //testLFUCache();
-        testFIFOCache();
+        //testFIFOCache();
+        //testFIFOMeasureTimeCacheDecorator();
+        testLegacyCacheAdapter();
     }
 
     private static void testLFUCache(){
@@ -48,5 +55,24 @@ public class App {
 
         // We should expect here - null and error message.
         System.out.println(cache.get("key3")); 
+    }
+
+    private static void testFIFOMeasureTimeCacheDecorator(){
+        CacheDecorator decorator = new CacheTimeMeasureDecorator(CacheFactory.createCacheInstance(CacheTypeEnum.FIFO, 3));
+        decorator.put("key1", 1); // [key1:1, ]
+        decorator.put("key2", 2); // [key1:1, key2:2, ]
+
+        System.out.println(MessageFormat.format("Key: {0}", decorator.get("key1")));
+    }
+
+    private static void testLegacyCacheAdapter(){
+        ICache cache = new LegacyCacheAdapter(3);
+        cache.put("key1", 1); // [key1:1, ]
+        cache.put("key2", 2); // [key1:1, key2:2, ]
+        cache.put("key3", 3); // [key1:1, key2:2, key3:3 ]
+        cache.put("key4", 4); // [key1:1, key2:2, key3:3 ]
+        cache.put("key3", 4); // [key1:1, key2:2, key3:4 ]
+        cache.remove("key1");
+        cache.put("key4", 4); // [key1:1, key2:2, key3:3 ]
     }
 }

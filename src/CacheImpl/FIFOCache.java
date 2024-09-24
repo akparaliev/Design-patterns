@@ -2,15 +2,16 @@ package CacheImpl;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
 import Interfaces.ICache;
 
-public class FIFOCache implements ICache {
+public class FIFOCache<K,V> implements ICache<K,V>{
     private final int capacity;
-    private final Map<String, Integer> dictMap;
-    private final LinkedList<String> queue;
+    private final Map<K, V> dictMap;
+    private final LinkedList<K> queue;
 
     public FIFOCache(int capacity) {
         this.capacity = capacity;
@@ -19,27 +20,27 @@ public class FIFOCache implements ICache {
     }
 
     @Override
-    public void put(String key, Integer value) {
+    public void put(K key, V value) {
         if (containsKey(key)) {
-            dictMap.put(key, value); // [key2:2, key3:3, key1:6]
+            dictMap.put(key, value);
 
             // update the order of the key from queue
-            queue.remove(key); // [key2, key3 ]
-            queue.addLast(key); // [key2, key3, key1]
+            queue.remove(key);
+            queue.addLast(key);
         } else {
             while (getSize() >= capacity) {
                 // remove the oldest element from queue and cache.
-                String oldestItemKey = queue.removeFirst(); // [key3, key1, key2, ], remove key3 -> [ key1, key2, ]
-                dictMap.remove(oldestItemKey); // [key2:2, key1:6]
+                K oldestItemKey = queue.removeFirst();
+                dictMap.remove(oldestItemKey);
             }
 
-            dictMap.put(key, value); // [ key1, key2, key4]
-            queue.addLast(key); // [key2:2, key1:6, key4:10]
+            dictMap.put(key, value);
+            queue.addLast(key);
         }
     }
 
     @Override
-    public Integer get(String key) {
+    public V get(K key) {
         if (containsKey(key)){
             return dictMap.get(key);
         }
@@ -49,10 +50,10 @@ public class FIFOCache implements ICache {
     }
 
     @Override
-    public void remove(String key) {
+    public void remove(K key) {
         if (containsKey(key)) {
-            dictMap.remove(key); // O(1)
-            queue.remove(key); // O(n), double linked list we can remove it in O(1)
+            dictMap.remove(key);
+            queue.remove(key);
         } else {
             System.out.println(MessageFormat.format("ERROR: Key {0} is not in cache.", key));
         }
@@ -70,7 +71,13 @@ public class FIFOCache implements ICache {
     }
 
     @Override
-    public boolean containsKey(String key) {
+    public boolean containsKey(K key) {
         return dictMap.containsKey(key);
+    }
+
+    @Override
+    public Iterator<K> iterator() {
+        //return queue.iterator();
+        return queue.iterator();
     }
 }

@@ -3,18 +3,18 @@ package CacheImpl;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LegacyCache {
-    private final Map<String, Integer> cache = new HashMap<>();
+public class LegacyCache<K,V> {
+    private final Map<K, V> cache = new HashMap<>();
 
-    public void put(String key, Integer value) {
+    public void put(K key, V value) {
         cache.put(key, value);
     }
 
-    public Integer get(String key) {
+    public V get(K key) {
         return cache.get(key);
     }
 
-    public void remove(String key) {
+    public void remove(K key) {
         cache.remove(key);
     }
 
@@ -26,7 +26,7 @@ public class LegacyCache {
         return cache.size();
     }
 
-    public boolean containsKey(String key) {
+    public boolean containsKey(K key) {
         return cache.containsKey(key);
     }
 }
